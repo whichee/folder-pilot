@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 
+const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+
 interface FolderEntry {
   path: string;
   name: string;
@@ -47,7 +49,21 @@ const archBar = $("#arch-bar");
 const statusBar = $("#status-bar");
 
 async function loadConfig(): Promise<void> {
-  config = await invoke<AppConfig>("get_config");
+  if (isTauri) {
+    config = await invoke<AppConfig>("get_config");
+  } else {
+    config = {
+      favorites: [
+        "D:\\工作\\零售业务部",
+        "D:\\工作\\零售业务部\\02-省行需求单",
+        "D:\\工作\\零售业务部\\06-投诉",
+      ],
+      root_dirs: ["D:\\工作\\零售业务部"],
+      hotkey: "Alt+Shift+F",
+      scan_depth: 3,
+      autostart: true,
+    };
+  }
   $<HTMLInputElement>("#hotkey-input").value = config.hotkey;
   $<HTMLInputElement>("#depth-input").value = String(config.scan_depth);
   $<HTMLInputElement>("#autostart-toggle").checked = config.autostart;
@@ -56,7 +72,21 @@ async function loadConfig(): Promise<void> {
 }
 
 async function refreshFolders(): Promise<void> {
-  folders = await invoke<FolderEntry[]>("scan_folders");
+  if (isTauri) {
+    folders = await invoke<FolderEntry[]>("scan_folders");
+  } else {
+    folders = [
+      { path: "D:\\工作\\零售业务部", name: "零售业务部", depth: 0, is_favorite: true, exists: true },
+      { path: "D:\\工作\\零售业务部\\01-报表", name: "01-报表", depth: 1, is_favorite: false, exists: true },
+      { path: "D:\\工作\\零售业务部\\02-省行需求单", name: "02-省行需求单", depth: 1, is_favorite: true, exists: true },
+      { path: "D:\\工作\\零售业务部\\06-投诉", name: "06-投诉", depth: 1, is_favorite: true, exists: true },
+      { path: "D:\\工作\\零售业务部\\06-投诉\\台账", name: "台账", depth: 2, is_favorite: false, exists: true },
+      { path: "D:\\工作\\零售业务部\\07-需求单", name: "07-需求单", depth: 1, is_favorite: false, exists: true },
+      { path: "D:\\工作\\零售业务部\\10-银企智联项目", name: "10-银企智联项目", depth: 1, is_favorite: false, exists: true },
+      { path: "D:\\工作\\零售业务部\\14-招投标", name: "14-招投标", depth: 1, is_favorite: false, exists: true },
+      { path: "D:\\工作\\零售业务部\\已归档", name: "已归档（旧）", depth: 1, is_favorite: false, exists: false },
+    ];
+  }
   render();
 }
 
@@ -133,7 +163,7 @@ function folderRow(f: FolderEntry): HTMLElement {
       flash("该目录已失效，无法打开");
       return;
     }
-    invoke("open_folder", { path: f.path });
+    safeInvoke("open_folder", { path: f.path });
   };
 
   const btnArch = document.createElement("button");
@@ -151,7 +181,7 @@ function folderRow(f: FolderEntry): HTMLElement {
 
   // 双击：打开
   row.addEventListener("dblclick", () => {
-    if (f.exists) invoke("open_folder", { path: f.path });
+    if (f.exists) safeInvoke("open_folder", { path: f.path });
   });
 
   return row;
@@ -196,7 +226,7 @@ function renderArchBar(): void {
 }
 
 async function saveConfig(): Promise<void> {
-  await invoke("save_config", { config });
+  await safeInvoke("save_config", { config });
   $<HTMLInputElement>("#autostart-toggle").checked = config.autostart;
 }
 
@@ -206,9 +236,17 @@ function flash(msg: string): void {
   setTimeout(() => statusBar.classList.remove("show"), 2500);
 }
 
+async function safeInvoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+  if (isTauri) {
+    return invoke<T>(cmd, args);
+  }
+  // demo 模式：静默成功，便于纯浏览器预览
+  return Promise.resolve({} as T);
+}
+
 async function doArchive(f: FolderEntry): Promise<void> {
   if (selectedFiles.length === 0) return;
-  const results = await invoke<ArchiveResult[]>("archive_files", {
+  const results = await safeInvoke<ArchiveResult[]>("archive_files", {
     files: selectedFiles,
     dest: f.path,
   });
@@ -228,32 +266,23 @@ searchEl.addEventListener("input", () => {
 searchEl.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
   const shown = filteredFolders().filter((f) => f.exists);
-  if (shown.length > 0) invoke("open_folder", { path: shown[0].path });
+  if (shown.length > 0) safeInvoke("open_folder", { path: shown[0].path });
 });
 
 document.querySelectorAll<HTMLButtonElement>(".tab").forEach((tab) => {
   tab.addEventListener("click", () => {
-    currentTab = tab.dataset.tab as typeof currentTab;
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-    tab.classList.add("active");
-    document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
-    $(`#view-${currentTab}`).classList.add("active");
-    if (currentTab === "favorites" || currentTab === "all") render();
-    if (currentTab === "settings") renderRootDirs();
+    switchTab(tab.dataset.tab as typeof currentTab);
+    render();
   });
 });
 
 $("#btn-settings").addEventListener("click", () => {
-  document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-  document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
-  $("#view-settings").classList.add("active");
-  const btn = document.querySelector<HTMLButtonElement>('.tab[data-tab="settings"]')!;
-  btn.classList.add("active");
+  switchTab("settings");
   renderRootDirs();
 });
 
 $("#btn-add-root").addEventListener("click", async () => {
-  const dirs = await invoke<string[]>("pick_folders");
+  const dirs = await safeInvoke<string[]>("pick_folders");
   if (!dirs.length) return;
   for (const d of dirs) {
     if (!config.root_dirs.includes(d)) config.root_dirs.push(d);
@@ -292,7 +321,7 @@ $("#autostart-toggle").addEventListener("change", async () => {
 });
 
 $("#btn-pick-files").addEventListener("click", async () => {
-  selectedFiles = await invoke<string[]>("pick_files");
+  selectedFiles = await safeInvoke<string[]>("pick_files");
   renderArchBar();
   flash(`已选择 ${selectedFiles.length} 个文件`);
 });
@@ -303,6 +332,20 @@ $("#btn-clear-arch").addEventListener("click", () => {
   renderAll();
 });
 
-window.addEventListener("DOMContentLoaded", () => {
-  loadConfig();
+window.addEventListener("DOMContentLoaded", async () => {
+  // demo 模式支持 ?tab=all|settings 用于预览/截图
+  const urlTab = new URLSearchParams(window.location.search).get("tab");
+  if (urlTab === "all" || urlTab === "settings") {
+    switchTab(urlTab);
+  }
+  await loadConfig();
 });
+
+function switchTab(tab: typeof currentTab): void {
+  currentTab = tab;
+  document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+  const btn = document.querySelector<HTMLButtonElement>(`.tab[data-tab="${tab}"]`)!;
+  btn.classList.add("active");
+  document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
+  $(`#view-${tab}`).classList.add("active");
+}

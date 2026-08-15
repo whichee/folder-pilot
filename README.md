@@ -2,6 +2,12 @@
 
 Windows 悬浮文件夹管理与一键归档工具。基于 Tauri 2（Rust + Web 前端），在 Linux 上开发、通过 GitHub Actions 在 Windows 上打包。
 
+## UI 预览
+
+| 收藏 | 全部 | 设置 |
+| --- | --- | --- |
+| ![收藏](docs/screenshot-favorites.png) | ![全部](docs/screenshot-all.png) | ![设置](docs/screenshot-settings.png) |
+
 ## 功能
 
 - 悬浮置顶面板，系统托盘 + 全局热键（默认 `Alt+Shift+F`）呼出
