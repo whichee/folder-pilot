@@ -6,7 +6,7 @@ Windows 悬浮文件夹管理与一键归档工具。基于 Tauri 2（Rust + Web
 
 | 收藏 | 全部 | 设置 |
 | --- | --- | --- |
-| ![收藏](docs/screenshot-favorites.png) | ![全部](docs/screenshot-all.png) | ![设置](docs/screenshot-settings.png) |
+| ![收藏](docs/screenshot-v2-favorites.png) | ![全部](docs/screenshot-v2-all.png) | ![设置](docs/screenshot-v2-settings.png) |
 
 ## 功能
 
