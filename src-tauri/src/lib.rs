@@ -106,16 +106,13 @@ fn register_hotkey(app: &AppHandle, hotkey: &str) -> Result<(), String> {
     use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
     let _ = app.global_shortcut().unregister_all();
     let shortcut: Shortcut = hotkey.parse().map_err(|e| format!("热键格式错误: {e}"))?;
-    let app_handle = app.clone();
     app.global_shortcut()
         .on_shortcut(shortcut, move |app, _sc, event| {
             if event.state() == ShortcutState::Pressed {
                 toggle_window(app);
             }
         })
-        .map_err(|e| e.to_string())?;
-    let _ = app_handle;
-    Ok(())
+        .map_err(|e| e.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -145,7 +142,7 @@ pub fn run() {
             {
                 use tauri_plugin_autostart::ManagerExt;
                 if cfg.autostart {
-                    let _ = app.autostart().enable();
+                    let _ = app.autolaunch().enable();
                 }
             }
 
