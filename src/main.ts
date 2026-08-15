@@ -54,11 +54,11 @@ async function loadConfig(): Promise<void> {
   } else {
     config = {
       favorites: [
-        "D:\\工作\\零售业务部",
-        "D:\\工作\\零售业务部\\02-省行需求单",
-        "D:\\工作\\零售业务部\\06-投诉",
+        "D:\\Demo\\公司资料",
+        "D:\\Demo\\项目A\\需求文档",
+        "D:\\Demo\\项目B\\合同",
       ],
-      root_dirs: ["D:\\工作\\零售业务部"],
+      root_dirs: ["D:\\Demo"],
       hotkey: "Alt+Shift+F",
       scan_depth: 3,
       autostart: true,
@@ -76,15 +76,17 @@ async function refreshFolders(): Promise<void> {
     folders = await invoke<FolderEntry[]>("scan_folders");
   } else {
     folders = [
-      { path: "D:\\工作\\零售业务部", name: "零售业务部", depth: 0, is_favorite: true, exists: true },
-      { path: "D:\\工作\\零售业务部\\01-报表", name: "01-报表", depth: 1, is_favorite: false, exists: true },
-      { path: "D:\\工作\\零售业务部\\02-省行需求单", name: "02-省行需求单", depth: 1, is_favorite: true, exists: true },
-      { path: "D:\\工作\\零售业务部\\06-投诉", name: "06-投诉", depth: 1, is_favorite: true, exists: true },
-      { path: "D:\\工作\\零售业务部\\06-投诉\\台账", name: "台账", depth: 2, is_favorite: false, exists: true },
-      { path: "D:\\工作\\零售业务部\\07-需求单", name: "07-需求单", depth: 1, is_favorite: false, exists: true },
-      { path: "D:\\工作\\零售业务部\\10-银企智联项目", name: "10-银企智联项目", depth: 1, is_favorite: false, exists: true },
-      { path: "D:\\工作\\零售业务部\\14-招投标", name: "14-招投标", depth: 1, is_favorite: false, exists: true },
-      { path: "D:\\工作\\零售业务部\\已归档", name: "已归档（旧）", depth: 1, is_favorite: false, exists: false },
+      { path: "D:\\Demo", name: "Demo", depth: 0, is_favorite: false, exists: true },
+      { path: "D:\\Demo\\公司资料", name: "公司资料", depth: 1, is_favorite: true, exists: true },
+      { path: "D:\\Demo\\项目A", name: "项目A", depth: 1, is_favorite: false, exists: true },
+      { path: "D:\\Demo\\项目A\\需求文档", name: "需求文档", depth: 2, is_favorite: true, exists: true },
+      { path: "D:\\Demo\\项目A\\会议纪要", name: "会议纪要", depth: 2, is_favorite: false, exists: true },
+      { path: "D:\\Demo\\项目B", name: "项目B", depth: 1, is_favorite: false, exists: true },
+      { path: "D:\\Demo\\项目B\\合同", name: "合同", depth: 2, is_favorite: true, exists: true },
+      { path: "D:\\Demo\\项目B\\设计图", name: "设计图", depth: 2, is_favorite: false, exists: true },
+      { path: "D:\\Demo\\项目C", name: "项目C", depth: 1, is_favorite: false, exists: true },
+      { path: "D:\\Demo\\项目C\\测试", name: "测试", depth: 2, is_favorite: false, exists: true },
+      { path: "D:\\Demo\\归档", name: "归档（旧）", depth: 1, is_favorite: false, exists: false },
     ];
   }
   render();
