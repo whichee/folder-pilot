@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文件夹快速跳转</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <input
+          id="search"
+          type="text"
+          placeholder="搜索文件夹…（Enter 打开第一个）"
+          autocomplete="off"
+        />
+        <button id="btn-settings" class="icon-btn" title="设置">⚙</button>
+      </header>
+
+      <nav class="tabs">
+        <button class="tab active" data-tab="favorites">收藏</button>
+        <button class="tab" data-tab="all">全部</button>
+        <button class="tab" data-tab="settings">设置</button>
+      </nav>
+
+      <section id="view-favorites" class="view active">
+        <div class="list" id="favorites-list"></div>
+        <div class="empty" id="favorites-empty">
+          <p>暂无收藏</p>
+          <p class="hint">在「全部」里点 ☆ 收藏常用文件夹</p>
+        </div>
+      </section>
+
+      <section id="view-all" class="view">
+        <div class="list" id="all-list"></div>
+        <div class="empty" id="all-empty">
+          <p>暂无可显示目录</p>
+          <p class="hint">先在「设置」里添加扫描根目录</p>
+        </div>
+      </section>
+
+      <section id="view-settings" class="view">
+        <div class="card">
+          <h3>扫描根目录</h3>
+          <div class="root-dirs" id="root-dirs"></div>
+          <button id="btn-add-root" class="btn">＋ 添加目录</button>
+        </div>
+        <div class="card">
+          <h3>全局热键</h3>
+          <div class="field">
+            <input id="hotkey-input" type="text" placeholder="Alt+Shift+F" />
+            <button id="btn-save-hotkey" class="btn">保存</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>扫描深度</h3>
+          <div class="field">
+            <input id="depth-input" type="number" min="1" max="8" value="3" />
+            <button id="btn-save-depth" class="btn">保存</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>开机自启</h3>
+          <label class="switch">
+            <input id="autostart-toggle" type="checkbox" />
+            <span>开机时自动启动</span>
+          </label>
+        </div>
+        <div class="card">
+          <h3>一键归档</h3>
+          <p class="hint">
+            1. 点击「选择文件」选出要归档的文件<br />
+            2. 在列表任意文件夹上点「归档到此」即可移动过去<br />
+            3. 同名文件自动追加序号，不会覆盖
+          </p>
+          <button id="btn-pick-files" class="btn primary">选择文件…</button>
+        </div>
+        <div class="status-bar" id="status-bar"></div>
+      </section>
+
+      <footer class="arch-bar" id="arch-bar">
+        <span id="arch-count">未选择文件</span>
+        <button id="btn-clear-arch" class="btn ghost">清除</button>
+      </footer>
+    </div>
+  </body>
+</html>
